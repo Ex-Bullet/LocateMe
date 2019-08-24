@@ -3,5 +3,6 @@ Une application qui affiche sur une carte tous les utilisateurs connectés. Logi
 
 
 ## INSTALLATION
--npm install
--expo start
+npm install
+
+expo start

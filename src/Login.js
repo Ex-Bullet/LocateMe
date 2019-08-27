@@ -15,17 +15,78 @@ import {
   Icon,
   Button
 } from 'native-base';
+import * as Location from 'expo-location';
+import * as Permissions from 'expo-permissions';
+import PhoneInput, { formatPhoneNumber, isValidPhoneNumber } from 'react-phone-number-input';
+
+
 
 export default class LoginScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      text: '',
+      location: null,
+      errorMessage: null
+    };
+  }
 
+
+  check = () => {
+    // console.log(this.state.text);
+    // console.log(this.state.location);
+    fetch('https://locatemeapi.herokuapp.com/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        phoneNumber: this.state.text,
+        lat: this.state.location.latitude,
+        lng: this.state.location.longitude
+      })
+    })
+    .then((response) => response.json())
+    .then((responseData) => {
+        console.log("Resultat", responseData)
+    })
+      .catch((error) =>{
+      console.error(error);
+      }) 
+    };
+
+
+
+  componentDidMount() {
+    this._getloc();
+  }
+
+
+  _getloc = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== 'granted') {
+          this.setState({
+            errorMessage: 'Permission to access location was denied',
+          });
+        }
+    let location = await Location.getCurrentPositionAsync({});
+    this.setState({ location });
+  }
+
+  
   render() {
     return (
+      
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView style={styles.container} behavior='padding' enabled>
           <View style={{alignItems: 'center'}}>
-            <Text>test</Text>
+            <Text>Locate Me</Text>
           </View>
-          
+
+
+
+
           <TouchableWithoutFeedback style={styles.container} onPress={Keyboard.dismiss}>
             <View style={styles.container}>
               <Container style={styles.infoContainer}>
@@ -48,23 +109,26 @@ export default class LoginScreen extends React.Component {
                     autoCapitalize='none'
                     autoCorrect={false}
                     secureTextEntry={false}
-                    style={styles.inputStyle}                   
+                    style={styles.inputStyle}       
+                    onChangeText={(text) => this.setState({text})} 
+                    value={this.setState.text}           
                   />
                 </Item>
               </Container>
             </View>
           </TouchableWithoutFeedback>
           <View style={{alignItems: 'center',}}>
-        <Button style={{width:150, alignItems: 'center', justifyContent: 'center'}} primary onPress={() => this.props.navigation.navigate('Home')}>
+        <Button style={{width:150, alignItems: 'center', justifyContent: 'center'}} primary onPress={this.check}>
           <Text style={{fontWeight: "bold", color: 'white'}}>CONTINUER</Text>
             </Button>
         </View>
-        </KeyboardAvoidingView>
-        
+         </KeyboardAvoidingView>
       </SafeAreaView>
     )
   }
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

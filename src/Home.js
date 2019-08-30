@@ -1,46 +1,65 @@
 import React from "react";
-import { View, Platform, Text, StyleSheet } from "react-native";
+import { View, Platform, StyleSheet } from "react-native";
 import MapView from 'react-native-maps';
-import { Marker } from 'react-native-maps';
-
+import { Marker, Circle } from 'react-native-maps';
+import axios from 'axios';
 
 export default class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             pn: this.props.navigation.getParam('pn'),
-            lnt: this.props.navigation.getParam('lnt'),
-            lng: this.props.navigation.getParam('lng')
-          };
-
+            lat: this.props.navigation.getParam('lat'),
+            lng: this.props.navigation.getParam('lng'),
+            users: null
+          }
         }
-      // componentDidMount(){
-      //   console.log(this.state.pn);
-        
-      // }
-    render() {
+      
+        componentDidMount () {
+            axios.get('https://locatemeapi.herokuapp.com/all')
+            .then(res => {
+              this.setState({users: res.data});
+              console.log(this.state.users);
+              
+            })
+        }
 
+
+    render() {
       return (
         
         <View style ={styles.container}>
         <MapView style={styles.map}>
         <MapView
           initialRegion={{
-            latitude: this.state.lnt,
-            longitude: this.state.lng
+            latitude: this.state.lat,
+            longitude: this.state.lng,
+            latitudeDelta: 0.04,
+            longitudeDelta: 0.05
           }}
           />
+          <Circle
+          center={{ latitude: this.state.lat, longitude: this.state.lng}}
+          radius={1000}
+        />
         <Marker
       coordinate={{
-        latitude: this.state.lnt,
+        latitude: this.state.lat,
         longitude: this.state.lng
       }}
-      title={"Ma position"}
-      description={"test"}
+      title="Ma position"
       />
-
+      {/* {this.state.users.map(user => (
+        <Marker
+          coordinate={{
+            latitude: user.lat,
+            longitude: user.lng
+          }}
+          
+        />
+      ))} */}
         </MapView>
-            
+        
       </View>
       );
     }
@@ -52,12 +71,10 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    height: '100%',
-    width: '100%',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+    height: '100%',
+    width: '100%'
   },
 });

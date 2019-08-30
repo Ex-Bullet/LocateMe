@@ -6,14 +6,13 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Text,
-  Alert
+  Text
 } from "react-native";
 import { Container, Item, Input, Icon, Button } from "native-base";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 
-const valide = /^(\+33\s[1-9]{8})|(0[1-9]\s{8})$/;
+// const valide = /^(\+33\s[1-9]{8})|(0[1-9]\s{8})$/;
 
 export default class LoginScreen extends React.Component {
   constructor(props) {
@@ -22,17 +21,18 @@ export default class LoginScreen extends React.Component {
       text: "",
       location: null,
       errorMessage: null,
-      lnt: null,
+      lat: null,
       latitude: null
-    };
+    }
   }
 
 
   check = () => {
 
-    let checks = valide.test(this.state.text);
+    // let checks = valide.test(this.state.text);
 
-    if (checks) {
+    console.log(this.state.location.coords);
+    // if (checks) {
       fetch("https://locatemeapi.herokuapp.com/login", {
         method: "POST",
         headers: {
@@ -48,19 +48,19 @@ export default class LoginScreen extends React.Component {
         .then((responseJson) => {
           this.props.navigation.navigate ('Home', {
             pn: this.state.text,
-            lnt: this.state.lnt,
+            lat: this.state.lat,
             lng: this.state.lng})
         })
         .catch((error) => {
           console.error(error);
         });
-    }
-    else {
-      Alert.alert("error enculey")
-    }
+    // }
+    // else {
+    //   Alert.alert("error enculey")
+    // }
     // console.log(this.state.text);
     // console.log(this.state.location);
-    // console.log(this.state.location.coords.latitude, this.state.location.coords.longitude);
+    console.log(this.state.location.coords.latitude, this.state.location.coords.longitude);
 
 };
 
@@ -77,7 +77,7 @@ export default class LoginScreen extends React.Component {
     }
     let location = await Location.getCurrentPositionAsync({});
     this.setState({ location });
-    this.setState({ lnt: location.coords.latitude});
+    this.setState({ lat: location.coords.latitude});
     this.setState({lng: location.coords.longitude});
 
   };
@@ -93,9 +93,15 @@ export default class LoginScreen extends React.Component {
           enabled
         >
           <View style={{ alignItems: "center" }}>
-            <Text>Locate Me</Text>
+            <Text style={{ 
+              fontWeight: "bold",
+              fontSize: 30,
+              marginTop: 150,
+              color: "#3D77C6"
+               }}>
+              Locate Me</Text>
           </View>
-
+         
           <TouchableWithoutFeedback
             style={styles.container}
             onPress={Keyboard.dismiss}
@@ -114,10 +120,7 @@ export default class LoginScreen extends React.Component {
                     placeholderTextColor="#adb4bc"
                     keyboardType={"phone-pad"}
                     returnKeyType="done"
-                    autoCapitalize="none"
-                    maxLength={11}
-                    autoCorrect={false}
-                    secureTextEntry={false}
+                    maxLength={12}
                     style={styles.inputStyle}
                     onChangeText={text => this.setState({ text })}
                     value={this.setState.text}
@@ -131,7 +134,8 @@ export default class LoginScreen extends React.Component {
               style={{
                 width: 150,
                 alignItems: "center",
-                justifyContent: "center"
+                justifyContent: "center",
+                marginTop: -280
               }}
               primary
               onPress={this.check}

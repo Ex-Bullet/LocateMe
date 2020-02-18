@@ -1,0 +1,9 @@
+# dependencies
+/node_modules
+/package-lock.json
+/yarn-error.log
+.DS_Store
+/bots/node_modules/
+.watchmanconfig
+*.log
+.nvm
